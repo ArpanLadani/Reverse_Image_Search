@@ -74,6 +74,7 @@ def similar_images(indices):
         if plotnumber<=len(indices) :
             ax = plt.subplot(2,4,plotnumber)
             # plt.imshow(mpimg.imread(filenames[index]), interpolation='lanczos')  
+            st.text(plotnumber)
             st.image(mpimg.imread(filenames[index]),width= 200)
             print(filenames[index])          
             plotnumber+=1
@@ -155,8 +156,8 @@ def main():
             print(type(test_img_features))
             
     if selected == "About Us":
-        st.title('I am Arpan Ladani')
-        st.text('Email: ladaniarpan@gmail.com')
+        st.title('')
+        st.text('--> Reverse image search is a search engine technology that takes an image file as \n input query and returns results related to the image.')
 
     if selected == "Contact":
         pass
