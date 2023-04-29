@@ -40,7 +40,7 @@ def load_dataset():
     global filenames
     filenames = [root_dir + '/' + s for s in datagen.filenames]
 
-def load_model():
+def load_model_inmemory():
     model = tf.keras.models.load_model('models/model.h5')
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     return model
@@ -68,17 +68,24 @@ def decode_image(image):
 
 
 def similar_images(indices):
-    plt.figure(figsize=(15,10), facecolor='white')
-    plotnumber = 1    
-    for index in indices:
-        if plotnumber<=len(indices) :
-            ax = plt.subplot(2,4,plotnumber)
-            # plt.imshow(mpimg.imread(filenames[index]), interpolation='lanczos')  
-            st.text(plotnumber)
-            st.image(mpimg.imread(filenames[index]),width= 200)
-            print(filenames[index])          
-            plotnumber+=1
-    return plt.tight_layout()
+    # plt.figure(figsize=(15,10), facecolor='white')
+    # plotnumber = 1    
+    
+    # st.write(
+    #     f'<style>.stImage {{ max-height: 300px; object-fit: contain; }}</style>',
+    #     unsafe_allow_html=True,
+    # )
+    return st.image(mpimg.imread(filenames[indices]), use_column_width=True)
+    # for index in indices:
+    #     if plotnumber<=len(indices) :
+    #         ax = plt.subplot(2,4,plotnumber)
+    #         # plt.imshow(mpimg.imread(filenames[index]), interpolation='lanczos')  
+    #         st.text(plotnumber)
+    #         st.image(mpimg.imread(filenames[index]),width= 200)
+            
+    #         print(filenames[index])          
+    #         plotnumber+=1
+    # return plt.tight_layout()
 
 def load_lottieurl(url: str):
     r = requests.get(url)
@@ -87,6 +94,15 @@ def load_lottieurl(url: str):
     return r.json()
 
 def main():
+    st.write(
+        '''<style>
+        .element-container.css-rton5x.e1tzin5v3 {
+            width:60px;
+        }</style>''',
+        unsafe_allow_html=True,
+    )
+    st.image("scaledge_logo.jpg", use_column_width = True,channels="RGB")
+
     # with st.sidebar:
     #     st.image("logo.jfif", use_column_width = True)
     #     st.title("Reverse Image Search")
@@ -103,22 +119,22 @@ def main():
     #         default_index= 0
     #     )
     with st.sidebar:
-        lottie_search = load_lottieurl("https://assets1.lottiefiles.com/private_files/lf30_jo7huq2d.json")
-        st_lottie(lottie_search,key= "search",height = 300, width = 300,speed= 0.75)
-    st.image("scaledge_logo.jfif", use_column_width = True,channels="RGB")
-    selected = option_menu(
-        menu_title="Reverse Image Search",
-        options=["About Us", "Upload Picture", "Contact"],
-        icons=["info-circle", "cloud-arrow-up-fill", "envelope"],
-        default_index= 0,
-        orientation= "horizontal"
-    )
+        lottie_search = load_lottieurl("https://assets1.lottiefiles.com/packages/lf20_bo8vqwyw.json",)
+        st_lottie(lottie_search,key= "search",height = 280, width = 280,speed= 0.50)
+        selected = option_menu(
+            menu_title="Reverse Image Search",
+            menu_icon= None,
+            options=["About Us", "Upload Picture", "Contact"],
+            icons=["info-circle", "cloud-arrow-up-fill", "envelope"],
+            default_index= 0,
+            orientation= "vertical"
+        )
 
     if selected == "Upload Picture":
-        st.title('Upload your Image you want to search')
-        image_file_buffer = st.file_uploader("Upload your image here")
-        with st.spinner ('Loading dataset into Memory...'):
-            dataset = load_dataset()
+        # st.title('Upload your Image you want to search')
+        image_file_buffer = st.file_uploader("Upload your image you want to search")
+        # with st.spinner ('Loading dataset into Memory...'):
+        #     dataset = load_dataset()
         
         if image_file_buffer is not None:
             bytes_data = image_file_buffer.getvalue()
@@ -129,10 +145,10 @@ def main():
             # st.image(image_file_buffer, caption="Selected Image", use_column_width = True)
             # image_open = Image.open(image_file_buffer)
             # img_array_open = np.array(image_file_buffer)
-            with st.spinner ('Loading Model into Memory...'):
-                model = load_model()
-            with st.spinner ('Loading Features into Memory...'):
-                features = np.load('features.npy')
+            # with st.spinner ('Loading Model into Memory...'):
+            #     model = load_model()
+            # with st.spinner ('Loading Features into Memory...'):
+            #     features = np.load('features.npy')
             
             # img_path = 'aeroplane.jfif'
             # input_shape = (224, 224, 3)
@@ -150,21 +166,39 @@ def main():
                 # plt.xlabel(image_open.split('.')[0] + '_Original Image',fontsize=20)
                 # plt.show()
                 print('Predictions images')
-                similar_images(indices[0])
+                col1,col2,col3,col4,col5 = st.columns(5)
+                with col1:
+                    similar_images(indices[0][0])
+                with col2:
+                    similar_images(indices[0][1])
+                with col3:
+                    similar_images(indices[0][2])
+                with col4:
+                    similar_images(indices[0][3])
+                with col5:
+                    similar_images(indices[0][4])
 
             print("Done")
-            print(type(test_img_features))
             
     if selected == "About Us":
         st.title('')
         st.text('--> Reverse image search is a search engine technology that takes an image file as \n input query and returns results related to the image.')
 
     if selected == "Contact":
+        st.text('Email:  ladaniarpan@gmail.com')
+        st.text('Github Repository:  https://github.com/ArpanLadani/Reverse_Image_Search')
+        st.text_input('If any query type here we will contact you soon')
         pass
 
 
 if __name__ == "__main__":
     try:
+        with st.spinner ('Loading dataset into Memory...'):
+            dataset = load_dataset()
+        with st.spinner ('Loading Model into Memory...'):
+            model = load_model_inmemory()
+        with st.spinner ('Loading Features into Memory...'):
+            features = np.load('features.npy')
         main()
     except SystemExit:
         pass
